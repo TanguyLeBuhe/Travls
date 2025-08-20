@@ -3,15 +3,18 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Carte France Mobile – Trajets perso</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Carte France – Trajets perso</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
+        /* ====== STYLE DESKTOP (par défaut) ====== */
         :root {
             --bg: #0b1020;
             --card: #141b2f;
+            --muted: #8ea0c2;
             --accent: #6ee7b7;
-            --warn: #f87171;
+            --warn: #f59e0b;
         }
 
         * {
@@ -23,106 +26,251 @@
             height: 100%;
             margin: 0;
             background: var(--bg);
-            color: #fff;
-            font-family: system-ui, Roboto
+            color: #e7ecf7;
+            font-family: system-ui, Segoe UI, Roboto, Arial;
         }
 
         #app {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-rows: auto 1fr;
             height: 100%;
         }
 
         header {
-            flex-shrink: 0;
-            padding: 8px;
-            background: #141b2f;
             display: flex;
-            flex-wrap: wrap;
+            gap: 12px;
             align-items: center;
             justify-content: space-between;
-            gap: 6px
+            padding: 10px 14px;
+            background: linear-gradient(90deg, #101735, #0b1020);
         }
 
         .title {
-            font-size: 16px;
-            font-weight: bold
-        }
-
-        .stats {
-            font-size: 13px;
-            color: #9ca3af
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: .3px;
         }
 
         .panel {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-            width: 100%
+            gap: 8px;
+            align-items: center;
         }
 
         button,
-        label {
-            flex: 1 1 40%;
-            min-width: 100px;
-            background: #1f2937;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            text-align: center;
+        .file-wrap label {
+            background: var(--card);
+            color: #e7ecf7;
+            border: 1px solid #223055;
+            padding: 8px 12px;
+            border-radius: 14px;
             cursor: pointer;
+            font-weight: 600;
             transition: .2s;
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, .2);
+        }
+
+        button:hover,
+        .file-wrap label:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px -8px #000;
         }
 
         button.primary {
-            background: #065f46
+            border-color: #1f8a6a;
+            background: #12343a;
         }
 
         button.warn {
-            background: #7f1d1d
+            border-color: #7a4708;
+            background: #3a230f;
         }
 
         button:disabled {
-            opacity: .5
+            opacity: .5;
+            cursor: not-allowed;
         }
 
         #map {
-            flex: 1;
+            height: 100%;
             width: 100%;
         }
 
+        .pill {
+            background: #0f1730;
+            border: 1px solid #223055;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            background: var(--accent);
+        }
+
+        .legend {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .file-wrap input {
+            display: none;
+        }
+
+        .file-wrap label {
+            display: inline-block;
+        }
+
         .footer {
-            padding: 6px;
             font-size: 12px;
-            text-align: center;
-            color: #9ca3af;
-            background: #141b2f
+            color: var(--muted);
+            padding: 6px 14px;
+            border-top: 1px solid #1a2340;
         }
 
-        input[type=file] {
-            display: none
-        }
-
-        #toast {
+        .toast {
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111827;
-            color: #fff;
-            padding: 10px 14px;
+            right: 14px;
+            bottom: 14px;
+            background: #12203f;
+            border: 1px solid #223055;
+            padding: 10px 12px;
             border-radius: 12px;
-            font-size: 14px;
             opacity: 0;
-            transition: .3s
+            transform: translateY(8px);
+            transition: .25s;
         }
 
-        #toast.show {
-            opacity: 1
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .badge {
+            background: #1e293b;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+
+        /* ====== STYLE MOBILE (max 768px) ====== */
+        @media (max-width: 768px) {
+            :root {
+                --bg: #0b1020;
+                --card: #141b2f;
+                --accent: #6ee7b7;
+                --warn: #f87171;
+            }
+
+            html,
+            body {
+                background: var(--bg);
+                color: #fff;
+                font-family: system-ui, Roboto;
+            }
+
+            #app {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            header {
+                flex-shrink: 0;
+                padding: 8px;
+                background: #141b2f;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 6px;
+            }
+
+            .title {
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .stats {
+                font-size: 13px;
+                color: #9ca3af;
+            }
+
+            .panel {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                justify-content: center;
+                width: 100%;
+            }
+
+            button,
+            label {
+                flex: 1 1 40%;
+                min-width: 100px;
+                background: #1f2937;
+                color: #fff;
+                border: none;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 15px;
+                font-weight: 600;
+                text-align: center;
+                cursor: pointer;
+                transition: .2s;
+            }
+
+            button.primary {
+                background: #065f46;
+            }
+
+            button.warn {
+                background: #7f1d1d;
+            }
+
+            button:disabled {
+                opacity: .5;
+            }
+
+            #map {
+                flex: 1;
+                width: 100%;
+            }
+
+            .footer {
+                padding: 6px;
+                font-size: 12px;
+                text-align: center;
+                color: #9ca3af;
+                background: #141b2f;
+            }
+
+            #toast {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #111827;
+                color: #fff;
+                padding: 10px 14px;
+                border-radius: 12px;
+                font-size: 14px;
+                opacity: 0;
+                transition: .3s;
+            }
+
+            #toast.show {
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -130,67 +278,328 @@
 <body>
     <div id="app">
         <header>
-            <div>
-                <div class="title">🗺️ Mes trajets</div>
-                <div class="stats">Dist: <span id="dist">0.00</span> km | Points: <span id="pts">0</span></div>
+            <div class="legend">
+                <span class="title">🗺️ Carte France – Trajets perso</span>
+                <span class="pill"><span class="dot"></span>Suivi en direct</span>
+                <span class="pill">Précision: <span id="acc">–</span> m</span>
+                <span class="pill">Distance: <span id="dist">0.00</span> km</span>
+                <span class="pill">Points: <span id="pts">0</span></span>
             </div>
             <div class="panel">
-                <button id="startBtn" class="primary">▶️ Start</button>
-                <button id="pauseBtn">⏸ Pause</button>
+                <button id="startBtn" class="primary">▶️ Démarrer</button>
+                <button id="pauseBtn">⏸️ Pause</button>
                 <button id="resumeBtn" class="primary" disabled>⏵ Reprendre</button>
                 <button id="clearBtn" class="warn">🧹 Effacer</button>
-                <button id="exportBtn">⬇️ Export</button>
-                <label for="importFile">⬆️ Import</label>
-                <input type="file" id="importFile" accept=".geojson,.json">
+                <button id="exportBtn">⬇️ Export GeoJSON</button>
+                <span class="file-wrap">
+                    <label for="importFile">⬆️ Import GeoJSON</label>
+                    <input type="file" id="importFile" accept=".geojson,.json,application/geo+json,application/json" />
+                </span>
             </div>
         </header>
-        <div id="map"></div>
-        <div class="footer">⚡ Les données restent sur ton téléphone (localStorage)</div>
-    </div>
-    <div id="toast"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <div id="map"></div>
+        <div class="footer">
+            Astuces : nécessite HTTPS (ou localhost). La précision varie selon GPS / réseau. Les données restent sur cet
+            appareil (localStorage).
+            <span class="badge" style="margin-left:8px">Batterie : le suivi continu consomme plus</span>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
         (function () {
-            const STORAGE_KEY = "trajets_fr_mobile";
-            let map, pathLine, coords = [], totalMeters = 0, watchId = null, paused = false;
+            // --- Constantes & état ---
+            const STORAGE_KEY = "trajets_france_geojson_v1";
+            const FR_BOUNDS = L.latLngBounds([41.0, -5.5], [51.6, 9.9]); // France métropolitaine approx
+            const MIN_ACCURACY_M = 80; // ignorer points trop imprécis (> 80m)
+            const MIN_DISTANCE_M = 5;  // ignorer mini déplacements (<5m)
+            const TOAST = document.getElementById('toast');
 
-            const distEl = document.getElementById("dist"), ptsEl = document.getElementById("pts");
-            const startBtn = document.getElementById("startBtn"), pauseBtn = document.getElementById("pauseBtn"),
-                resumeBtn = document.getElementById("resumeBtn"), clearBtn = document.getElementById("clearBtn"),
-                exportBtn = document.getElementById("exportBtn"), importFile = document.getElementById("importFile");
-            const toastEl = document.getElementById("toast");
+            let map, tileLayer, userMarker, headingMarker, pathLine, visitedLayer, watchId = null, isPaused = false;
+            let coords = []; // [{lat, lng, time}]
+            let totalMeters = 0;
 
-            function toast(msg) { toastEl.textContent = msg; toastEl.classList.add("show"); setTimeout(() => toastEl.classList.remove("show"), 2500) }
+            // --- UI refs ---
+            const accEl = document.getElementById('acc');
+            const distEl = document.getElementById('dist');
+            const ptsEl = document.getElementById('pts');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resumeBtn = document.getElementById('resumeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const exportBtn = document.getElementById('exportBtn');
+            const importFile = document.getElementById('importFile');
+
+            // --- Helpers ---
+            function toast(msg, timeout = 2500) { TOAST.textContent = msg; TOAST.classList.add('show'); setTimeout(() => TOAST.classList.remove('show'), timeout); }
             function fmtKm(m) { return (m / 1000).toFixed(2); }
-            function haversine(a, b) {
-                const R = 6371000, dLat = (b.lat - a.lat) * Math.PI / 180, dLng = (b.lng - a.lng) * Math.PI / 180;
+
+            function haversine(a, b) { // returns meters
+                const R = 6371000;
+                const toRad = d => d * Math.PI / 180;
+                const dLat = toRad(b.lat - a.lat);
+                const dLng = toRad(b.lng - a.lng);
                 const s1 = Math.sin(dLat / 2), s2 = Math.sin(dLng / 2);
-                return 2 * R * Math.asin(Math.sqrt(s1 * s1 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * s2 * s2));
+                const aa = s1 * s1 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * s2 * s2;
+                return 2 * R * Math.asin(Math.sqrt(aa));
             }
-            function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify({ coords, totalMeters })) }
-            function load() { let raw = localStorage.getItem(STORAGE_KEY); if (raw) { let d = JSON.parse(raw); coords = d.coords || []; totalMeters = d.totalMeters || 0 } }
-            function refresh() { if (pathLine) pathLine.remove(); if (coords.length) { pathLine = L.polyline(coords.map(c => [c.lat, c.lng]), { color: '#6ee7b7', weight: 4 }).addTo(map); map.fitBounds(pathLine.getBounds().pad(0.2)); } distEl.textContent = fmtKm(totalMeters); ptsEl.textContent = coords.length; }
-            function onPos(pos) {
-                const { latitude: lat, longitude: lng } = pos.coords; const c = { lat, lng, time: Date.now() };
-                if (coords.length) { let d = haversine(coords[coords.length - 1], c); if (d < 5) return; totalMeters += d; }
-                coords.push(c); save(); refresh();
+
+            function saveLocal() {
+                const fc = {
+                    type: "FeatureCollection",
+                    features: [
+                        {
+                            type: "Feature",
+                            properties: { name: "Trajet", totalMeters, startedAt: coords[0]?.time ?? null, updatedAt: Date.now() },
+                            geometry: { type: "LineString", coordinates: coords.map(c => [c.lng, c.lat]) }
+                        }
+                    ]
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(fc));
             }
-            function start() {
-                if (!navigator.geolocation) { toast("Non supporté"); return; }
-                if (watchId !== null) return; paused = false; watchId = navigator.geolocation.watchPosition(onPos, e => toast("Erreur"), { enableHighAccuracy: true }); startBtn.disabled = true; resumeBtn.disabled = true; pauseBtn.disabled = false; toast("Suivi démarré");
+
+            function loadLocal() {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return null;
+                try { return JSON.parse(raw) } catch (e) { console.warn(e); return null; }
             }
-            function pause() { if (watchId) { navigator.geolocation.clearWatch(watchId); watchId = null; paused = true; resumeBtn.disabled = false; pauseBtn.disabled = true; toast("Pause"); } }
-            function resume() { if (paused) { start(); toast("Reprise"); } }
-            function clearAll() { pause(); coords = []; totalMeters = 0; save(); refresh(); toast("Effacé"); }
-            function exportGeo() { const blob = new Blob([JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "LineString", coordinates: coords.map(c => [c.lng, c.lat]) }, properties: { distance: totalMeters } }] })], { type: "application/geo+json" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "trajet.geojson"; a.click(); URL.revokeObjectURL(url); }
-            function importGeo(f) { const r = new FileReader(); r.onload = () => { try { const fc = JSON.parse(r.result); coords = []; totalMeters = 0; let prev = null; (fc.features[0].geometry.coordinates || []).forEach(([lng, lat]) => { let c = { lat, lng }; if (prev) totalMeters += haversine(prev, c); coords.push(c); prev = c; }); save(); refresh(); toast("Import ok"); } catch (e) { toast("Import invalide"); } }; r.readAsText(f); }
-            // init
-            map = L.map("map").setView([46.6, 2.2], 6);
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OSM" }).addTo(map);
-            load(); refresh();
-            startBtn.onclick = start; pauseBtn.onclick = pause; resumeBtn.onclick = resume; clearBtn.onclick = clearAll; exportBtn.onclick = exportGeo;
-            importFile.onchange = e => { if (e.target.files[0]) importGeo(e.target.files[0]); };
+
+            function rebuildFromGeoJSON(fc) {
+                coords = [];
+                totalMeters = 0;
+                if (!fc || !fc.features || !fc.features.length) return;
+
+                const line = fc.features.find(f => f.geometry?.type === "LineString");
+                if (line) {
+                    let prev = null;
+                    (line.geometry.coordinates || []).forEach(([lng, lat]) => {
+                        const c = { lat, lng, time: Date.now() };
+                        coords.push(c);
+                        if (prev) totalMeters += haversine(prev, c);
+                        prev = c;
+                    });
+                }
+                refreshLayers();
+                updateStats();
+            }
+
+            function updateStats() {
+                distEl.textContent = fmtKm(totalMeters);
+                ptsEl.textContent = String(coords.length);
+            }
+
+            function refreshLayers() {
+                if (pathLine) { pathLine.remove(); }
+                pathLine = L.polyline(coords.map(c => [c.lat, c.lng]), { color: '#6ee7b7', weight: 4, opacity: 0.9 }).addTo(map);
+
+                if (visitedLayer) { visitedLayer.remove(); }
+                // Petits marqueurs ponctuels (tous les ~n points)
+                visitedLayer = L.layerGroup();
+                coords.forEach((c, i) => {
+                    if (i === 0 || i === coords.length - 1 || i % 30 === 0) {
+                        L.circleMarker([c.lat, c.lng], { radius: 4, opacity: 0.8, fillOpacity: 0.8 }).addTo(visitedLayer);
+                    }
+                });
+                visitedLayer.addTo(map);
+
+                if (coords.length) map.fitBounds(L.latLngBounds(coords.map(c => [c.lat, c.lng])).pad(0.15));
+            }
+
+            function setLiveMarker(lat, lng, heading) {
+                if (!userMarker) {
+                    userMarker = L.circleMarker([lat, lng], { radius: 7, weight: 2, opacity: 1, fillOpacity: 0.9 }).addTo(map);
+                } else {
+                    userMarker.setLatLng([lat, lng]);
+                }
+
+                // Flèche d’orientation simple (si heading dispo)
+                if (heading != null && !isNaN(heading)) {
+                    const len = 25; // pixels
+                    const p = map.latLngToLayerPoint([lat, lng]);
+                    const dx = Math.sin(heading * Math.PI / 180) * len;
+                    const dy = -Math.cos(heading * Math.PI / 180) * len;
+                    const end = map.layerPointToLatLng([p.x + dx, p.y + dy]);
+                    if (headingMarker) { headingMarker.remove(); }
+                    headingMarker = L.polyline([[lat, lng], [end.lat, end.lng]], { dashArray: '4,4', weight: 2 }).addTo(map);
+                } else if (headingMarker) {
+                    headingMarker.remove(); headingMarker = null;
+                }
+            }
+
+            function insideFrance(ll) {
+                return FR_BOUNDS.contains(ll);
+            }
+
+            // --- Map init ---
+            map = L.map('map', { zoomControl: true, minZoom: 5, maxZoom: 18, maxBounds: FR_BOUNDS.pad(0.3), maxBoundsViscosity: 0.7 });
+            map.fitBounds(FR_BOUNDS);
+            tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution: '&copy; contributeurs <a href="https://www.openstreetmap.org">OSM</a>'
+            }).addTo(map);
+
+            // Replacer l’orientation lors de zoom/pan si flèche affichée
+            map.on('zoomend moveend', () => {
+                if (userMarker) {
+                    const ll = userMarker.getLatLng();
+                    setLiveMarker(ll.lat, ll.lng, lastHeading);
+                }
+            });
+
+            // Charger données persistées
+            const stored = loadLocal();
+            if (stored) { rebuildFromGeoJSON(stored); }
+
+            // --- Geolocation ---
+            let lastPos = null, lastHeading = null;
+
+            function onGeoSuccess(pos) {
+                const { latitude: lat, longitude: lng, accuracy, heading } = pos.coords;
+                accEl.textContent = Math.round(accuracy);
+
+                const ll = L.latLng(lat, lng);
+
+                // Afficher live marker même si on ignore l’enregistrement (utile pour l’utilisateur)
+                setLiveMarker(lat, lng, heading);
+
+                if (!insideFrance(ll)) {
+                    toast("⚠️ Position hors France métropolitaine : le point n'est pas ajouté.");
+                    return;
+                }
+
+                if (accuracy > MIN_ACCURACY_M) {
+                    // Trop imprécis, on n’enregistre pas ce point
+                    return;
+                }
+
+                const now = Date.now();
+                const point = { lat, lng, time: now };
+
+                if (lastPos) {
+                    const d = haversine(lastPos, point);
+                    if (d < MIN_DISTANCE_M) return; // bruit
+                    totalMeters += d;
+                }
+
+                coords.push(point);
+                lastPos = point;
+                lastHeading = heading;
+
+                updateStats();
+                refreshLayers();
+                saveLocal();
+            }
+
+            function onGeoError(err) {
+                console.error(err);
+                toast("Erreur géoloc : " + (err.message || err.code));
+            }
+
+            function startWatch() {
+                if (!navigator.geolocation) { toast("Géolocalisation non supportée par ce navigateur."); return; }
+                if (watchId !== null) { toast("Le suivi est déjà actif."); return; }
+                isPaused = false;
+                resumeBtn.disabled = true;
+                pauseBtn.disabled = false;
+                startBtn.disabled = true;
+                watchId = navigator.geolocation.watchPosition(onGeoSuccess, onGeoError, {
+                    enableHighAccuracy: true,
+                    maximumAge: 1000,
+                    timeout: 15000
+                });
+                toast("Suivi démarré ✅");
+            }
+
+            function pauseWatch() {
+                if (watchId !== null) {
+                    navigator.geolocation.clearWatch(watchId);
+                    watchId = null;
+                    isPaused = true;
+                    resumeBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    toast("Suivi en pause ⏸️");
+                }
+            }
+
+            function resumeWatch() {
+                if (isPaused && watchId === null) {
+                    startWatch();
+                    toast("Reprise du suivi ▶️");
+                }
+            }
+
+            function clearAll() {
+                pauseWatch();
+                coords = [];
+                totalMeters = 0;
+                lastPos = null;
+                lastHeading = null;
+                if (pathLine) { pathLine.remove(); pathLine = null; }
+                if (visitedLayer) { visitedLayer.remove(); visitedLayer = null; }
+                updateStats();
+                localStorage.removeItem(STORAGE_KEY);
+                toast("Données effacées 🧹");
+            }
+
+            function exportGeoJSON() {
+                const fc = {
+                    type: "FeatureCollection",
+                    features: [
+                        {
+                            type: "Feature",
+                            properties: { name: "Trajet France (perso)", totalMeters, points: coords.length, exportedAt: new Date().toISOString() },
+                            geometry: { type: "LineString", coordinates: coords.map(c => [c.lng, c.lat]) }
+                        }
+                    ]
+                };
+                const blob = new Blob([JSON.stringify(fc, null, 2)], { type: "application/geo+json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "trajet_france.geojson";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            }
+
+            function importGeoJSON(file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    try {
+                        const fc = JSON.parse(reader.result);
+                        rebuildFromGeoJSON(fc);
+                        saveLocal();
+                        toast("Import réussi ✅");
+                    } catch (e) {
+                        console.error(e);
+                        toast("Import invalide ❌");
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            // --- Bind UI ---
+            startBtn.addEventListener('click', startWatch);
+            pauseBtn.addEventListener('click', pauseWatch);
+            resumeBtn.addEventListener('click', resumeWatch);
+            clearBtn.addEventListener('click', clearAll);
+            exportBtn.addEventListener('click', exportGeoJSON);
+            importFile.addEventListener('change', (e) => {
+                const f = e.target.files?.[0];
+                if (f) importGeoJSON(f);
+                e.target.value = '';
+            });
+
+            // Qualité de vie : démarrer auto si permission déjà accordée
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({ name: 'geolocation' }).then(p => {
+                    if (p.state === 'granted') { startWatch(); }
+                }).catch(() => { /* noop */ });
+            }
         })();
     </script>
 </body>
